@@ -3,13 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <name>YouTrade REST Client TEST</name>
+    <artifactId>ytrest-test</artifactId>
     <parent>
-        <groupId>cs.youtrade</groupId>
+        <groupId>xyz.youtradecs</groupId>
         <artifactId>ytrest-main</artifactId>
         <version>1.0.0</version>
     </parent>
-
-    <artifactId>example</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -33,7 +33,7 @@
         </dependency>
         <!-- YtREST -->
         <dependency>
-            <groupId>cs.youtrade</groupId>
+            <groupId>xyz.youtradecs</groupId>
             <artifactId>ytrest</artifactId>
             <version>1.0.0</version>
         </dependency>
@@ -71,6 +71,16 @@
                     <compilerArgs>
                         <arg>--enable-preview</arg>
                     </compilerArgs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.9.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <autoPublish>true</autoPublish>
                 </configuration>
             </plugin>
         </plugins>

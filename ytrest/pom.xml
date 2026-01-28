@@ -4,19 +4,41 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>cs.youtrade</groupId>
+        <groupId>xyz.youtradecs</groupId>
         <artifactId>ytrest-main</artifactId>
         <version>1.0.0</version>
     </parent>
+    <name>YouTrade REST Client</name>
 
+    <!-- For uploading on Maven Central -->
+    <groupId>xyz.youtradecs</groupId>
     <artifactId>ytrest</artifactId>
+    <version>1.0.1</version>
+    <!-- Do not remove this part -->
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>a_matisse</id>
+            <name>Aleksandr</name>
+            <email>provotorov-02@mail.ru</email>
+        </developer>
+    </developers>
+
     <description>Simple synchronous HTTP client for REST APIs</description>
-    <url>https://github.com/a-matisse/ytrest</url>
+    <url>https://github.com/a-matisse/ytrest-main</url>
 
     <scm>
-        <connection>scm:git:git://github.com/a-matisse/ytrest.git</connection>
-        <developerConnection>scm:git:ssh://github.com:a-matisse/ytrest.git</developerConnection>
-        <url>https://github.com/a-matisse/ytrest/tree/main</url>
+        <connection>scm:git:git://github.com/a-matisse/ytrest-main.git</connection>
+        <developerConnection>scm:git:ssh://github.com:a-matisse/ytrest-main.git</developerConnection>
+        <url>https://github.com/a-matisse/ytrest-main/tree/main/ytrest</url>
     </scm>
 
     <properties>
@@ -94,8 +116,40 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.12.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.9.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <!-- можно добавить <autoPublish>true</autoPublish> для CI -->
+                </configuration>
             </plugin>
         </plugins>
     </build>
