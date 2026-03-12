@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import cs.youtrade.ytrest.gson.GsonConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
+import lombok.extern.log4j.Log4j2;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.ClassicHttpRequest;
@@ -18,7 +19,7 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.Map;
 
-@Log
+@Log4j2
 @RequiredArgsConstructor
 public class YtSyncRestClient {
     private static final Gson GSON = GsonConfig.createGson();
@@ -27,7 +28,7 @@ public class YtSyncRestClient {
     private final CloseableHttpClient httpClient;
 
     public YtSyncRestClient(String baseUrl) {
-        this(baseUrl, HttpClients.createDefault());
+        this(baseUrl, HttpClients.createMinimal());
     }
 
     public void fetchFromApi(
@@ -80,6 +81,7 @@ public class YtSyncRestClient {
                     .build();
             return execute(request, type);
         } catch (IOException e) {
+            log.error("Error while fetching from API", e);
             return RestAnswer.getErrorAns();
         }
     }
@@ -99,7 +101,7 @@ public class YtSyncRestClient {
         });
     }
 
-    public <T> T executeUnsafe(HttpMethod method, String endpoint, Map<String, String> headers, Map<String, String> params, Object body, TypeToken<T> type) throws IOException {
+    public <T> T executeUnsafe(HttpMethod method, String endpoint, Map<String, String> headers, Map<String, String> params, Object body, TypeToken<T> type) {
         try {
             ClassicHttpRequest request = new YtHttpRequestBuilder()
                     .setMethod(method)
@@ -111,6 +113,7 @@ public class YtSyncRestClient {
                     .build();
             return executeUnsafe(request, type);
         } catch (IOException e) {
+            log.error("Error executing request", e);
             return null;
         }
     }

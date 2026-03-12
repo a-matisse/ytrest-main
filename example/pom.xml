@@ -3,13 +3,43 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <name>YouTrade REST Client TEST</name>
-    <artifactId>ytrest-test</artifactId>
     <parent>
         <groupId>xyz.youtradecs</groupId>
         <artifactId>ytrest-main</artifactId>
         <version>1.0.0</version>
     </parent>
+    <name>YouTrade REST Client TEST</name>
+
+    <!-- For uploading on Maven Central -->
+    <groupId>xyz.youtradecs</groupId>
+    <artifactId>ytrest-test</artifactId>
+    <version>1.0.1</version>
+    <!-- Do not remove this part -->
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>a_matisse</id>
+            <name>Aleksandr</name>
+            <email>provotorov-02@mail.ru</email>
+        </developer>
+    </developers>
+
+    <description>Simple synchronous HTTP client for REST APIs</description>
+    <url>https://github.com/a-matisse/ytrest-main</url>
+
+    <scm>
+        <connection>scm:git:git://github.com/a-matisse/ytrest-main.git</connection>
+        <developerConnection>scm:git:ssh://github.com:a-matisse/ytrest-main.git</developerConnection>
+        <url>https://github.com/a-matisse/ytrest-main/tree/main/ytrest</url>
+    </scm>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -65,7 +95,7 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.28</version>
+                            <version>1.18.42</version>
                         </path>
                     </annotationProcessorPaths>
                     <compilerArgs>
@@ -74,13 +104,53 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.12.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.sonatype.central</groupId>
                 <artifactId>central-publishing-maven-plugin</artifactId>
                 <version>0.9.0</version>
                 <extensions>true</extensions>
                 <configuration>
                     <publishingServerId>central</publishingServerId>
-                    <autoPublish>true</autoPublish>
+                    <!-- можно добавить <autoPublish>true</autoPublish> для CI -->
                 </configuration>
             </plugin>
         </plugins>
