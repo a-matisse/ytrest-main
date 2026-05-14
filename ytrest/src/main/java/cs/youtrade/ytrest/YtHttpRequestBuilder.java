@@ -74,7 +74,7 @@ public class YtHttpRequestBuilder {
     }
 
     private ClassicHttpRequest buildBody(HttpMethod method, ClassicHttpRequest request, Object body) {
-        if (method.allowsBody())
+        if (method.allowsBody() || !validateBody)
             addJsonBody(request, body);
         else
             validateNoBody(method, body);
@@ -97,7 +97,7 @@ public class YtHttpRequestBuilder {
     }
 
     private void validateNoBody(HttpMethod method, Object body) {
-        if (body != null && validateBody)
+        if (body != null)
             throw new YtRestClientException(
                     String.format("HTTP method %s does not support request body. Provided body: %s", method, body));
     }
