@@ -3,8 +3,6 @@ package cs.youtrade.ytrest;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import cs.youtrade.ytrest.gson.GsonConfig;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
 import lombok.extern.log4j.Log4j2;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -20,15 +18,29 @@ import java.util.Collections;
 import java.util.Map;
 
 @Log4j2
-@RequiredArgsConstructor
 public class YtSyncRestClient {
     private static final Gson GSON = GsonConfig.createGson();
 
     private final String baseUrl;
     private final CloseableHttpClient httpClient;
+    private final boolean validateBody;
+
+    public YtSyncRestClient(String baseUrl, CloseableHttpClient httpClient, boolean validateBody) {
+        this.baseUrl = baseUrl;
+        this.httpClient = httpClient;
+        this.validateBody = validateBody;
+    }
+
+    public YtSyncRestClient(String baseUrl, CloseableHttpClient httpClient) {
+        this(baseUrl, httpClient, true);
+    }
+
+    public YtSyncRestClient(String baseUrl, boolean validateBody) {
+        this(baseUrl, HttpClients.createDefault(), validateBody);
+    }
 
     public YtSyncRestClient(String baseUrl) {
-        this(baseUrl, HttpClients.createMinimal());
+        this(baseUrl, HttpClients.createMinimal(), true);
     }
 
     public void fetchFromApi(
@@ -72,6 +84,7 @@ public class YtSyncRestClient {
     ) {
         try {
             ClassicHttpRequest request = new YtHttpRequestBuilder()
+                    .setValidateBody(validateBody)
                     .setMethod(method)
                     .setBaseUrl(baseUrl)
                     .setEndpoint(endpoint)
@@ -104,6 +117,7 @@ public class YtSyncRestClient {
     public <T> T executeUnsafe(HttpMethod method, String endpoint, Map<String, String> headers, Map<String, String> params, Object body, TypeToken<T> type) {
         try {
             ClassicHttpRequest request = new YtHttpRequestBuilder()
+                    .setValidateBody(validateBody)
                     .setMethod(method)
                     .setBaseUrl(baseUrl)
                     .setEndpoint(endpoint)

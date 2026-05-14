@@ -65,7 +65,7 @@
         <dependency>
             <groupId>xyz.youtradecs</groupId>
             <artifactId>ytrest</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.3</version>
         </dependency>
         <!-- GSON -->
         <dependency>

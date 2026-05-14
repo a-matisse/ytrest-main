@@ -16,6 +16,7 @@ import java.util.Map;
 public class YtHttpRequestBuilder {
     private static final Gson gson = GsonConfig.createGson();
 
+    private boolean validateBody = true;
     private String baseUrl;
     private HttpMethod method;
     private String endpoint;
@@ -96,10 +97,14 @@ public class YtHttpRequestBuilder {
     }
 
     private void validateNoBody(HttpMethod method, Object body) {
-        if (body != null) {
+        if (body != null && validateBody)
             throw new YtRestClientException(
                     String.format("HTTP method %s does not support request body. Provided body: %s", method, body));
-        }
+    }
+
+    public YtHttpRequestBuilder setValidateBody(boolean validateBody) {
+        this.validateBody = validateBody;
+        return this;
     }
 
     public YtHttpRequestBuilder setBaseUrl(String baseUrl) {
