@@ -14,7 +14,7 @@ import java.net.URISyntaxException;
 import java.util.Map;
 
 public class YtHttpRequestBuilder {
-    private static final Gson gson = GsonConfig.createGson();
+    private static final Gson DEFAULT_GSON = GsonConfig.createGson();
 
     private boolean validateBody = true;
     private String baseUrl;
@@ -23,6 +23,7 @@ public class YtHttpRequestBuilder {
     private Map<String, String> headers;
     private Map<String, String> params;
     private Object body;
+    private Gson gson;
 
     public ClassicHttpRequest build() {
         if (baseUrl == null)
@@ -52,24 +53,15 @@ public class YtHttpRequestBuilder {
 
     private ClassicHttpRequest buildBody(HttpMethod method, URI uri, Object body) {
         return switch (method) {
-            case POST ->
-                    buildBody(method, new HttpPost(uri), body);
-            case PUT ->
-                    buildBody(method, new HttpPut(uri), body);
-            case PATCH ->
-                    buildBody(method, new HttpPatch(uri), body);
-            case GET ->
-                    buildBody(method, new HttpGet(uri), body);
-            case HEAD ->
-                    buildBody(method, new HttpHead(uri), body);
-            case DELETE ->
-                    buildBody(method, new HttpDelete(uri), body);
-            case OPTIONS ->
-                    buildBody(method, new HttpOptions(uri), body);
-            case TRACE ->
-                    buildBody(method, new HttpTrace(uri), body);
-            default ->
-                    throw new IllegalArgumentException("Unsupported HTTP method: " + method);
+            case POST -> buildBody(method, new HttpPost(uri), body);
+            case PUT -> buildBody(method, new HttpPut(uri), body);
+            case PATCH -> buildBody(method, new HttpPatch(uri), body);
+            case GET -> buildBody(method, new HttpGet(uri), body);
+            case HEAD -> buildBody(method, new HttpHead(uri), body);
+            case DELETE -> buildBody(method, new HttpDelete(uri), body);
+            case OPTIONS -> buildBody(method, new HttpOptions(uri), body);
+            case TRACE -> buildBody(method, new HttpTrace(uri), body);
+            default -> throw new IllegalArgumentException("Unsupported HTTP method: " + method);
         };
     }
 
@@ -91,7 +83,9 @@ public class YtHttpRequestBuilder {
 
     private void addJsonBody(ClassicHttpRequest request, Object body) {
         if (body != null) {
-            String jsonBody = gson.toJson(body);
+            String jsonBody = gson != null
+                    ? gson.toJson(body)
+                    : DEFAULT_GSON.toJson(body);
             request.setEntity(new StringEntity(jsonBody, ContentType.APPLICATION_JSON));
         }
     }
@@ -134,6 +128,11 @@ public class YtHttpRequestBuilder {
 
     public YtHttpRequestBuilder setBody(Object body) {
         this.body = body;
+        return this;
+    }
+
+    public YtHttpRequestBuilder setGson(Gson gson) {
+        this.gson = gson;
         return this;
     }
 }

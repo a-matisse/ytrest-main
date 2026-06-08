@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import cs.youtrade.ytrest.gson.adapter.LocalDateAdapter;
 import cs.youtrade.ytrest.gson.adapter.LocalDateTimeAdapter;
 import cs.youtrade.ytrest.gson.adapter.LocalTimeAdapter;
+import lombok.Getter;
 
 import java.lang.reflect.Type;
 import java.time.LocalDate;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GsonConfig {
+    @Getter
     private static final Map<Type, Object> adapters = new HashMap<>();
 
     static {
@@ -22,10 +24,17 @@ public class GsonConfig {
         addAdapter(LocalTime.class, new LocalTimeAdapter());
     }
 
-    public static Gson createGson() {
-        var builder = new GsonBuilder();
+    public static GsonBuilder getGsonBuilder() {
+        return fillGsonBuilder(new GsonBuilder());
+    }
+
+    public static GsonBuilder fillGsonBuilder(GsonBuilder builder) {
         adapters.forEach(builder::registerTypeAdapter);
-        return builder.create();
+        return builder;
+    }
+
+    public static Gson createGson() {
+        return getGsonBuilder().create();
     }
 
     public static <T> void addAdapter(Class<T> type, Object adapter) {

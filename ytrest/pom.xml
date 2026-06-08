@@ -13,7 +13,7 @@
     <!-- For uploading on Maven Central -->
     <groupId>xyz.youtradecs</groupId>
     <artifactId>ytrest</artifactId>
-    <version>1.0.6</version>
+    <version>1.1.0</version>
     <!-- Do not remove this part -->
 
     <licenses>
@@ -42,9 +42,12 @@
     </scm>
 
     <properties>
+        <java.version>17</java.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Auto-Update config -->
+        <maven.version.ignore>(?i).*-(alpha|beta|rc|m)([-.]?\d+)?</maven.version.ignore>
     </properties>
 
     <dependencyManagement>
@@ -52,7 +55,7 @@
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-bom</artifactId>
-                <version>2.25.3</version>
+                <version>2.26.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -77,13 +80,13 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.42</version>
+            <version>1.18.46</version>
             <scope>provided</scope>
         </dependency>
         <!-- GSON -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
-            <version>2.13.2</version>
+            <version>2.14.0</version>
             <artifactId>gson</artifactId>
             <optional>true</optional>
         </dependency>
@@ -91,17 +94,17 @@
         <dependency>
             <groupId>org.apache.httpcomponents.client5</groupId>
             <artifactId>httpclient5</artifactId>
-            <version>5.6</version>
+            <version>5.6.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents.core5</groupId>
             <artifactId>httpcore5</artifactId>
-            <version>5.4</version>
+            <version>5.4.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents.core5</groupId>
             <artifactId>httpcore5-h2</artifactId>
-            <version>5.4</version>
+            <version>5.4.2</version>
         </dependency>
     </dependencies>
 

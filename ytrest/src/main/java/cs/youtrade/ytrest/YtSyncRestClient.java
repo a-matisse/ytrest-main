@@ -3,6 +3,7 @@ package cs.youtrade.ytrest;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import cs.youtrade.ytrest.gson.GsonConfig;
+import lombok.Builder;
 import lombok.extern.log4j.Log4j2;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -18,30 +19,16 @@ import java.util.Collections;
 import java.util.Map;
 
 @Log4j2
+@Builder
 public class YtSyncRestClient {
-    private static final Gson GSON = GsonConfig.createGson();
 
     private final String baseUrl;
-    private final CloseableHttpClient httpClient;
-    private final boolean validateBody;
-
-    public YtSyncRestClient(String baseUrl, CloseableHttpClient httpClient, boolean validateBody) {
-        this.baseUrl = baseUrl;
-        this.httpClient = httpClient;
-        this.validateBody = validateBody;
-    }
-
-    public YtSyncRestClient(String baseUrl, CloseableHttpClient httpClient) {
-        this(baseUrl, httpClient, true);
-    }
-
-    public YtSyncRestClient(String baseUrl, boolean validateBody) {
-        this(baseUrl, HttpClients.createDefault(), validateBody);
-    }
-
-    public YtSyncRestClient(String baseUrl) {
-        this(baseUrl, HttpClients.createMinimal(), true);
-    }
+    @Builder.Default
+    private final CloseableHttpClient httpClient = HttpClients.createMinimal();
+    @Builder.Default
+    private final boolean validateBody = true;
+    @Builder.Default
+    private final Gson GSON = GsonConfig.createGson();
 
     public void fetchFromApi(
             HttpMethod method, String endpoint
@@ -91,6 +78,7 @@ public class YtSyncRestClient {
                     .setHeaders(headers)
                     .setParams(params)
                     .setBody(body)
+                    .setGson(GSON)
                     .build();
             return execute(request, type);
         } catch (IOException e) {
@@ -124,6 +112,7 @@ public class YtSyncRestClient {
                     .setHeaders(headers)
                     .setParams(params)
                     .setBody(body)
+                    .setGson(GSON)
                     .build();
             return executeUnsafe(request, type);
         } catch (IOException e) {
@@ -140,13 +129,11 @@ public class YtSyncRestClient {
         });
     }
 
-    @SuppressWarnings("unchecked")
-    private static <T> T fromJson(InputStreamReader inputStream, Type type) {
-        return (T) GSON.fromJson(inputStream, type);
+    private <T> T fromJson(InputStreamReader inputStream, Type type) {
+        return GSON.fromJson(inputStream, type);
     }
 
-    @SuppressWarnings("unchecked")
-    private static <T> T fromJson(String json, Type type) {
-        return (T) GSON.fromJson(json, type);
+    private <T> T fromJson(String json, Type type) {
+        return GSON.fromJson(json, type);
     }
 }
