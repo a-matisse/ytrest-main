@@ -13,7 +13,7 @@
     <!-- For uploading on Maven Central -->
     <groupId>xyz.youtradecs</groupId>
     <artifactId>ytrest</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
     <!-- Do not remove this part -->
 
     <licenses>

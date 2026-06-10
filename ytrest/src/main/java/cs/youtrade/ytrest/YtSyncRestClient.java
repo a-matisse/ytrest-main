@@ -29,6 +29,8 @@ public class YtSyncRestClient {
     private final boolean validateBody = true;
     @Builder.Default
     private final Gson GSON = GsonConfig.createGson();
+    @Builder.Default
+    private final boolean alwaysParse = false;
 
     public void fetchFromApi(
             HttpMethod method, String endpoint
@@ -91,7 +93,7 @@ public class YtSyncRestClient {
         return httpClient.execute(request, response -> {
             HttpEntity entity = response.getEntity();
             int statusCode = response.getCode();
-            if (!(statusCode >= 200 && statusCode < 300))
+            if (!(statusCode >= 200 && statusCode < 300) && !alwaysParse)
                 return new RestAnswer<>(statusCode);
 
             try (InputStream stream = entity.getContent();
