@@ -8,15 +8,16 @@ import cs.youtrade.ytrest.YtSyncRestClient;
 import lombok.Data;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
+
+import java.lang.reflect.Type;
 
 @Slf4j
 public class Main {
     private static final ObjectMapper jacksonMapper = new ObjectMapper();
-    private static final YtSyncRestClient client = new YtSyncRestClient(
-            "https://jsonplaceholder.typicode.com/",
-            HttpClients.createDefault()
-    );
+    private static final YtSyncRestClient client = YtSyncRestClient
+            .builder()
+            .baseUrl("https://jsonplaceholder.typicode.com/")
+            .build();
 
     /**
      * This example uses GSON,
@@ -37,24 +38,31 @@ public class Main {
     }
 
     private static RestAnswer<ExampleDto> fetchFromApiGSON() {
-        return client.fetchFromApi(
-                HttpMethod.GET,
-                "todos/1",
-                new TypeToken<ExampleDto>() {
-                }.getType()
-        );
+        return client
+                .fetchFromApi(HttpMethod.GET, "todos/1")
+                .type(getGsonType())
+                .build()
+                .fetch();
+    }
+
+    private static Type getGsonType() {
+        return new TypeToken<ExampleDto>() {
+        }.getType();
     }
 
     private static RestAnswer<ExampleDto> fetchFromApiFasterXML() {
-        var type = jacksonMapper
+        return client
+                .fetchFromApi(HttpMethod.GET, "todos/1")
+                .type(getJacksonType())
+                .build()
+                .fetch();
+    }
+
+    private static Type getJacksonType() {
+        return jacksonMapper
                 .getTypeFactory()
                 .constructType(ExampleDto.class)
                 .getRawClass();
-        return client.fetchFromApi(
-                HttpMethod.GET,
-                "todos/1",
-                type
-        );
     }
 
     @Data

@@ -3,7 +3,8 @@ package cs.youtrade.ytrest;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import cs.youtrade.ytrest.gson.GsonConfig;
-import lombok.Builder;
+import cs.youtrade.ytrest.util.YtMultiMap;
+import lombok.*;
 import lombok.extern.log4j.Log4j2;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -15,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
-import java.util.Collections;
 import java.util.Map;
 
 @Log4j2
@@ -32,57 +32,30 @@ public class YtSyncRestClient {
     @Builder.Default
     private final boolean alwaysParse = false;
 
-    public void fetchFromApi(
-            HttpMethod method, String endpoint
-    ) {
-        fetchFromApi(
-                method, endpoint, Collections.emptyMap(), Collections.emptyMap(), null, new TypeToken<Void>() {
-                }.getType());
+    /**
+     * Creates a new request builder for the API call.
+     *
+     * @param method   HTTP method (GET, POST, etc.)
+     * @param endpoint API endpoint path
+     * @return request builder instance
+     */
+    public YtSyncRequest.YtSyncRequestBuilder fetchFromApi(HttpMethod method, String endpoint) {
+        return YtSyncRequest.builder(this, method, endpoint);
     }
 
-    public <T> RestAnswer<T> fetchFromApi(
-            HttpMethod method, String endpoint, Type type
-    ) {
-        return fetchFromApi(
-                method, endpoint, Collections.emptyMap(), Collections.emptyMap(), null, type);
-    }
-
-    public <T> RestAnswer<T> fetchFromApi(
-            HttpMethod method, String endpoint, Object body, Type type
-    ) {
-        return fetchFromApi(
-                method, endpoint, Collections.emptyMap(), Collections.emptyMap(), body, type);
-    }
-
-    public <T> RestAnswer<T> fetchFromApi(
-            HttpMethod method, String endpoint, Map<String, String> headers, Object body, Type type
-    ) {
-        return fetchFromApi(
-                method, endpoint, headers, Collections.emptyMap(), body, type);
-    }
-
-    public <T> RestAnswer<T> fetchFromApi(
-            HttpMethod method, String endpoint, Map<String, String> headers, Map<String, String> params, Type type
-    ) {
-        return fetchFromApi(
-                method, endpoint, headers, params, null, type);
-    }
-
-    public <T> RestAnswer<T> fetchFromApi(
-            HttpMethod method, String endpoint, Map<String, String> headers, Map<String, String> params, Object body, Type type
-    ) {
+    private <T> RestAnswer<T> fetchFromApi(YtSyncRequest req) {
         try {
             ClassicHttpRequest request = new YtHttpRequestBuilder()
                     .setValidateBody(validateBody)
-                    .setMethod(method)
+                    .setMethod(req.getMethod())
                     .setBaseUrl(baseUrl)
-                    .setEndpoint(endpoint)
-                    .setHeaders(headers)
-                    .setParams(params)
-                    .setBody(body)
+                    .setEndpoint(req.getEndpoint())
+                    .setHeaders(req.getHeaders())
+                    .setParams(req.getParams())
+                    .setBody(req.getBody())
                     .setGson(GSON)
                     .build();
-            return execute(request, type);
+            return execute(request, req.getType());
         } catch (IOException e) {
             log.error("Error while fetching from API", e);
             return RestAnswer.getErrorAns();
@@ -104,26 +77,26 @@ public class YtSyncRestClient {
         });
     }
 
-    public <T> T executeUnsafe(HttpMethod method, String endpoint, Map<String, String> headers, Map<String, String> params, Object body, TypeToken<T> type) {
+    private <T> T executeUnsafe(YtSyncRequest req) {
         try {
             ClassicHttpRequest request = new YtHttpRequestBuilder()
                     .setValidateBody(validateBody)
-                    .setMethod(method)
+                    .setMethod(req.getMethod())
                     .setBaseUrl(baseUrl)
-                    .setEndpoint(endpoint)
-                    .setHeaders(headers)
-                    .setParams(params)
-                    .setBody(body)
+                    .setEndpoint(req.getEndpoint())
+                    .setHeaders(req.getHeaders())
+                    .setParams(req.getParams())
+                    .setBody(req.getBody())
                     .setGson(GSON)
                     .build();
-            return executeUnsafe(request, type);
+            return executeUnsafe(request, TypeToken.get(req.getType()));
         } catch (IOException e) {
             log.error("Error executing request", e);
-            return null;
+            throw new RuntimeException("Failed to execute request", e);
         }
     }
 
-    private <T> T executeUnsafe(ClassicHttpRequest request, TypeToken<T> type) throws IOException {
+    private <T> T executeUnsafe(ClassicHttpRequest request, TypeToken<?> type) throws IOException {
         return httpClient.execute(request, response -> {
             HttpEntity entity = response.getEntity();
             String responseBody = EntityUtils.toString(entity);
@@ -137,5 +110,100 @@ public class YtSyncRestClient {
 
     private <T> T fromJson(String json, Type type) {
         return GSON.fromJson(json, type);
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class YtSyncRequest {
+        private YtSyncRestClient client;
+        private HttpMethod method;
+        private String endpoint;
+        private YtMultiMap<String, String> headers;
+        private YtMultiMap<String, String> params;
+        private Object body;
+        private Type type;
+
+        /**
+         * Executes the request and returns parsed response.
+         *
+         * @param <T> expected response type
+         * @return RestAnswer with response data
+         */
+        public <T> RestAnswer<T> fetch() {
+            return client.fetchFromApi(this);
+        }
+
+        public <T> T fetchUnsafe() {
+            return client.executeUnsafe(this);
+        }
+
+        /**
+         * Creates a builder with required fields.
+         *
+         * @param method   HTTP method (GET, POST, etc.)
+         * @param endpoint API endpoint path
+         * @return builder instance
+         */
+        public static YtSyncRequestBuilder builder(YtSyncRestClient client, HttpMethod method, String endpoint) {
+            return new YtSyncRequestBuilder()
+                    .client(client)
+                    .method(method)
+                    .endpoint(endpoint);
+        }
+
+        public static class YtSyncRequestBuilder {
+            private YtSyncRequestBuilder client(YtSyncRestClient client) {
+                this.client = client;
+                return this;
+            }
+
+            private YtSyncRequestBuilder method(HttpMethod method) {
+                this.method = method;
+                return this;
+            }
+
+            private YtSyncRequestBuilder endpoint(String endpoint) {
+                this.endpoint = endpoint;
+                return this;
+            }
+
+            /**
+             * Sets headers from a regular Map.
+             *
+             * @param headersMap map of header names to values
+             * @return this builder
+             */
+            public YtSyncRequestBuilder headers(Map<String, String> headersMap) {
+                if (headersMap != null && !headersMap.isEmpty())
+                    this.headers = YtMultiMap.fromMap(headersMap);
+                return this;
+            }
+
+            public YtSyncRequestBuilder headers(YtMultiMap<String, String> headers) {
+                if (headers != null && !headers.isEmpty())
+                    this.headers = headers;
+                return this;
+            }
+
+            /**
+             * Sets query parameters from a regular Map.
+             *
+             * @param paramsMap map of parameter names to values
+             * @return this builder
+             */
+            public YtSyncRequestBuilder params(Map<String, String> paramsMap) {
+                if (paramsMap != null && !paramsMap.isEmpty())
+                    this.params = YtMultiMap.fromMap(paramsMap);
+                return this;
+            }
+
+            public YtSyncRequestBuilder params(YtMultiMap<String, String> params) {
+                if (params != null && !params.isEmpty())
+                    this.params = params;
+                return this;
+            }
+        }
     }
 }

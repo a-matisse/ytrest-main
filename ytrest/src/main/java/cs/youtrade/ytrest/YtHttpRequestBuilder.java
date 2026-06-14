@@ -2,6 +2,7 @@ package cs.youtrade.ytrest;
 
 import com.google.gson.Gson;
 import cs.youtrade.ytrest.gson.GsonConfig;
+import cs.youtrade.ytrest.util.YtMultiMap;
 import cs.youtrade.ytrest.util.YtRestClientException;
 import org.apache.hc.client5.http.classic.methods.*;
 import org.apache.hc.core5.http.ClassicHttpRequest;
@@ -20,21 +21,18 @@ public class YtHttpRequestBuilder {
     private String baseUrl;
     private HttpMethod method;
     private String endpoint;
-    private Map<String, String> headers;
-    private Map<String, String> params;
+    private YtMultiMap<String, String> headers;
+    private YtMultiMap<String, String> params;
     private Object body;
     private Gson gson;
 
     public ClassicHttpRequest build() {
         if (baseUrl == null)
             throw new YtRestClientException("baseUrl not set");
-
         if (method == null)
             throw new YtRestClientException("method not set");
-
         if (endpoint == null)
             throw new YtRestClientException("endpoint not set");
-
         try {
             return buildRequest();
         } catch (URISyntaxException e) {
@@ -47,7 +45,6 @@ public class YtHttpRequestBuilder {
                 .appendPath(endpoint);
         if (params != null)
             params.forEach(uriBuilder::addParameter);
-
         return buildBody(method, uriBuilder.build(), body);
     }
 
@@ -70,14 +67,12 @@ public class YtHttpRequestBuilder {
             addJsonBody(request, body);
         else
             validateNoBody(method, body);
-
         return buildHeader(request);
     }
 
     private ClassicHttpRequest buildHeader(ClassicHttpRequest request) {
         if (headers != null)
             headers.forEach(request::addHeader);
-
         return request;
     }
 
@@ -117,11 +112,21 @@ public class YtHttpRequestBuilder {
     }
 
     public YtHttpRequestBuilder setHeaders(Map<String, String> headers) {
-        this.headers = headers;
+        this.headers = YtMultiMap.fromMap(headers);
         return this;
     }
 
     public YtHttpRequestBuilder setParams(Map<String, String> params) {
+        this.params = YtMultiMap.fromMap(params);
+        return this;
+    }
+
+    public YtHttpRequestBuilder setHeaders(YtMultiMap<String, String> headers) {
+        this.headers = headers;
+        return this;
+    }
+
+    public YtHttpRequestBuilder setParams(YtMultiMap<String, String> params) {
         this.params = params;
         return this;
     }
