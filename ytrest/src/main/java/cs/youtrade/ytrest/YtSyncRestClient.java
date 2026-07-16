@@ -50,6 +50,7 @@ public class YtSyncRestClient {
                     .setMethod(req.getMethod())
                     .setBaseUrl(baseUrl)
                     .setEndpoint(req.getEndpoint())
+                    .setRawEndpoint(req.isRawEndpoint())
                     .setHeaders(req.getHeaders())
                     .setParams(req.getParams())
                     .setBody(req.getBody())
@@ -84,6 +85,7 @@ public class YtSyncRestClient {
                     .setMethod(req.getMethod())
                     .setBaseUrl(baseUrl)
                     .setEndpoint(req.getEndpoint())
+                    .setRawEndpoint(req.isRawEndpoint())
                     .setHeaders(req.getHeaders())
                     .setParams(req.getParams())
                     .setBody(req.getBody())
@@ -120,6 +122,7 @@ public class YtSyncRestClient {
         private YtSyncRestClient client;
         private HttpMethod method;
         private String endpoint;
+        private boolean rawEndpoint;
         private YtMultiMap<String, String> headers;
         private YtMultiMap<String, String> params;
         private Object body;
@@ -166,6 +169,18 @@ public class YtSyncRestClient {
 
             private YtSyncRequestBuilder endpoint(String endpoint) {
                 this.endpoint = endpoint;
+                return this;
+            }
+
+            /**
+             * Treats the endpoint as an already formed URI path and preserves
+             * URI delimiters such as commas. Disabled by default.
+             *
+             * @param rawEndpoint true to preserve the raw endpoint syntax
+             * @return this builder
+             */
+            public YtSyncRequestBuilder rawEndpoint(boolean rawEndpoint) {
+                this.rawEndpoint = rawEndpoint;
                 return this;
             }
 

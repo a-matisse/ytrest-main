@@ -18,6 +18,7 @@ public class YtHttpRequestBuilder {
     private static final Gson DEFAULT_GSON = GsonConfig.createGson();
 
     private boolean validateBody = true;
+    private boolean rawEndpoint = false;
     private String baseUrl;
     private HttpMethod method;
     private String endpoint;
@@ -41,11 +42,20 @@ public class YtHttpRequestBuilder {
     }
 
     private ClassicHttpRequest buildRequest() throws URISyntaxException {
-        URIBuilder uriBuilder = new URIBuilder(baseUrl)
-                .appendPath(endpoint);
+        URIBuilder uriBuilder = rawEndpoint
+                ? new URIBuilder(joinBaseUrlAndEndpoint())
+                : new URIBuilder(baseUrl).appendPath(endpoint);
         if (params != null)
             params.forEach(uriBuilder::addParameter);
         return buildBody(method, uriBuilder.build(), body);
+    }
+
+    private String joinBaseUrlAndEndpoint() {
+        if (baseUrl.endsWith("/") && endpoint.startsWith("/"))
+            return baseUrl + endpoint.substring(1);
+        if (!baseUrl.endsWith("/") && !endpoint.startsWith("/"))
+            return baseUrl + "/" + endpoint;
+        return baseUrl + endpoint;
     }
 
     private ClassicHttpRequest buildBody(HttpMethod method, URI uri, Object body) {
@@ -93,6 +103,15 @@ public class YtHttpRequestBuilder {
 
     public YtHttpRequestBuilder setValidateBody(boolean validateBody) {
         this.validateBody = validateBody;
+        return this;
+    }
+
+    /**
+     * Controls whether the endpoint is treated as an already formed URI path.
+     * When disabled (the default), URIBuilder encodes the endpoint as before.
+     */
+    public YtHttpRequestBuilder setRawEndpoint(boolean rawEndpoint) {
+        this.rawEndpoint = rawEndpoint;
         return this;
     }
 
