@@ -69,6 +69,8 @@ public class YtSyncRestClient {
             int statusCode = response.getCode();
             if (!(statusCode >= 200 && statusCode < 300) && !alwaysParse)
                 return new RestAnswer<>(statusCode);
+            if (entity == null)
+                return new RestAnswer<>(statusCode);
 
             try (InputStream stream = entity.getContent();
                  InputStreamReader reader = new InputStreamReader(stream)) {
@@ -101,6 +103,8 @@ public class YtSyncRestClient {
     private <T> T executeUnsafe(ClassicHttpRequest request, TypeToken<?> type) throws IOException {
         return httpClient.execute(request, response -> {
             HttpEntity entity = response.getEntity();
+            if (entity == null)
+                return null;
             String responseBody = EntityUtils.toString(entity);
             return fromJson(responseBody, type.getType());
         });
