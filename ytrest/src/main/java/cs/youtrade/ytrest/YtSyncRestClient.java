@@ -46,7 +46,7 @@ public class YtSyncRestClient {
     private <T> RestAnswer<T> fetchFromApi(YtSyncRequest req) {
         try {
             ClassicHttpRequest request = new YtHttpRequestBuilder()
-                    .setValidateBody(validateBody)
+                    .setValidateBody(req.getValidateBody() != null ? req.getValidateBody() : validateBody)
                     .setMethod(req.getMethod())
                     .setBaseUrl(baseUrl)
                     .setEndpoint(req.getEndpoint())
@@ -81,7 +81,7 @@ public class YtSyncRestClient {
     private <T> T executeUnsafe(YtSyncRequest req) {
         try {
             ClassicHttpRequest request = new YtHttpRequestBuilder()
-                    .setValidateBody(validateBody)
+                    .setValidateBody(req.getValidateBody() != null ? req.getValidateBody() : validateBody)
                     .setMethod(req.getMethod())
                     .setBaseUrl(baseUrl)
                     .setEndpoint(req.getEndpoint())
@@ -123,6 +123,7 @@ public class YtSyncRestClient {
         private HttpMethod method;
         private String endpoint;
         private boolean rawEndpoint;
+        private Boolean validateBody;
         private YtMultiMap<String, String> headers;
         private YtMultiMap<String, String> params;
         private Object body;
